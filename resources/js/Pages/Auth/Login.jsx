@@ -1,139 +1,103 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+    import GuestLayout from '@/Layouts/GuestLayout';
+    import { Head, Link, router, useForm } from '@inertiajs/react';
 
-import { MailOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Flex, Form, Input } from "antd";
-import { useState } from 'react';
+    import { MailOutlined, LockOutlined, LoginOutlined  } from "@ant-design/icons";
+    import { Button, Form, Input } from "antd";
+    import { useState } from 'react';
+    import axios from 'axios';
 
-export default function Login({ status, canResetPassword }) {
-    
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
-        remember: false,
-    });
+    export default function Login({ status, canResetPassword }) {
 
-    const submit = (e) => {
-        e.preventDefault();
+        const [ form ] = Form.useForm();
+        const [ loading, setLoading ] = useState(false);
+        const [ errors, setErrors ] = useState({});
 
-        post(route('login'), {
-            onFinish: () => reset('password'),
-        });
-    };
+        const handleSubmit = (values) => {
 
-    const [ loading, setLoading ] = useState(false);
+            setLoading(true);
 
-    const handleClick = (e) => {
-        e.preventDefault();
+            axios.post('/login', values)
+                .then(res=>{
+                    router.visit('/login')//change to dashboard controller
+                }).catch(err => {
+                    setErrors(err.response.data.errors);
+                }).finally(() => {
+                    setLoading(false);
+                })
+        };
 
-        setLoading(true);
+        return (
+            <GuestLayout>
+                <Head title="Log in" />
 
-        setTimeout(() => {
-            setLoading(false)
-        }, 2000)
-    }
+                {status && (
+                    <div className="mb-4 text-sm font-medium text-green-600">
+                        {status}
+                    </div>
+                )}
 
-    return (
-        <GuestLayout>
-            <Head title="Log in" />
-
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
-
-            <form onSubmit={submit}>
-                <Flex vertical="true" gap="small">
-                    <Input
-                        placeholder="Email"
-                        size="large"
-                        prefix={<MailOutlined />}
-                    />
-                    <Input
-                        placeholder="Password"
-                        type="password"
-                        size="large"
-                        prefix={<UserOutlined />}
-                    />
-                    <Button
-                        type="primary"
-                        size="large"
-                        loading={loading}
-                        disabled={loading}
-                        onClick={handleClick}
-                    >
-                        Log in
-                    </Button>
-                </Flex>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
+                <Form
+                    form={form}
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                    autoComplete="off"
+                    initialValues={{
+                        email: "",
+                        password: "",
+                    }}
+                >
+                    <Form.Item
+                        label="EMAIL"
                         name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData("email", e.target.value)}
-                    />
-
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData("password", e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData("remember", e.target.checked)
-                            }
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please input your email!",
+                            },
+                        ]}
+                        validateStatus={errors?.email ? "error" : ""}
+                        help={errors?.email ? errors?.email[0] : ""}
+                    >
+                        <Input
+                            placeholder="Email"
+                            size="large"
+                            prefix={<MailOutlined />}
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
+                    </Form.Item>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route("password.request")}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    <Form.Item
+                        label="PASSWORD"
+                        name="password"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please input your password!",
+                            },
+                        ]}
+                        validateStatus={errors?.password ? "error" : ""}
+                        help={errors?.password ? errors?.password[0] : ""}
+                    >
+                        <Input
+                            placeholder="Password"
+                            type="password"
+                            size="large"
+                            prefix={<LockOutlined />}
+                        />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button
+                            htmlType="submit"
+                            type="primary"
+                            icon={<LoginOutlined />}
+                            size="large"
+                            block
+                            disabled={loading}
+                            loading={loading}
                         >
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
-    );
-}
+                            Login
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </GuestLayout>
+        );
+    }
