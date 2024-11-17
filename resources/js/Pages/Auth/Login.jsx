@@ -6,10 +6,12 @@ import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-import { UserOutlined } from "@ant-design/icons";
-import { Input } from "antd";
+import { MailOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Flex, Form, Input } from "antd";
+import { useState } from 'react';
 
 export default function Login({ status, canResetPassword }) {
+    
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -24,6 +26,18 @@ export default function Login({ status, canResetPassword }) {
         });
     };
 
+    const [ loading, setLoading ] = useState(false);
+
+    const handleClick = (e) => {
+        e.preventDefault();
+
+        setLoading(true);
+
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000)
+    }
+
     return (
         <GuestLayout>
             <Head title="Log in" />
@@ -35,11 +49,28 @@ export default function Login({ status, canResetPassword }) {
             )}
 
             <form onSubmit={submit}>
-                <Input
-                    size="large"
-                    placeholder="large size"
-                    // prefix={<UserOutlined />}
-                />
+                <Flex vertical="true" gap="small">
+                    <Input
+                        placeholder="Email"
+                        size="large"
+                        prefix={<MailOutlined />}
+                    />
+                    <Input
+                        placeholder="Password"
+                        type="password"
+                        size="large"
+                        prefix={<UserOutlined />}
+                    />
+                    <Button
+                        type="primary"
+                        size="large"
+                        loading={loading}
+                        disabled={loading}
+                        onClick={handleClick}
+                    >
+                        Log in
+                    </Button>
+                </Flex>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
 
