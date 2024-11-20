@@ -3,17 +3,29 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreUserRequest;
+use App\Models\User;
+use Auth;
 use Illuminate\Http\Request;
 
 class AdminUserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a view of the resource.
      */
     public function index()
     {
         return inertia('Admin/User/Index');
     }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function getData()
+    {
+        return User::whereNot('id', Auth::user()->id)->get();
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -26,9 +38,15 @@ class AdminUserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        User::create($data);
+
+        return response()->json([
+            'status' => 'created'
+        ], 200);
     }
 
     /**
@@ -60,6 +78,11 @@ class AdminUserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+
+        User::destroy($id);
+
+        return response()->json([
+            'status' => 'deleted'
+        ], 200);
     }
 }

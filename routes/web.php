@@ -21,6 +21,9 @@ Route::get('/dashboard', function () {
 
 
 Route::get('/admin/user', [AdminUserController::class, 'index'])->name('admin.user');
+Route::post('/admin/user/store', [AdminUserController::class, 'store']);
+Route::get('/admin/user/getData', [AdminUserController::class, 'getData']);
+Route::delete('/admin/user/delete/{id}', [AdminUserController::class, 'destroy']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

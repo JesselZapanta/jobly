@@ -50,7 +50,7 @@ class RegisteredUserController extends Controller
         // return redirect(route('dashboard', absolute: false));
 
         return response()->json([
-            'message' => 'Registered successfully',
+            // 'message' => 'Registered successfully',
         ], 200);
     }
 }
