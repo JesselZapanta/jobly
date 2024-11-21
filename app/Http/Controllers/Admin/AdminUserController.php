@@ -27,7 +27,7 @@ class AdminUserController extends Controller
         return User::where('name', 'like', "{$request->search}%")
                     ->orwhere('email', 'like', "{$request->search}%")
                     ->whereNot('id', Auth::user()->id)
-                    ->orderBy('id', 'desc')
+                    ->orderBy($request->sortField, $request->sortOrder)
                     ->paginate(10);
     }
 

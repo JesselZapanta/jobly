@@ -9,14 +9,12 @@ import {
     Space,
     notification,
     Row,
-    Pagination,
-    Dropdown,
 } from "antd";
 import {
     MailOutlined,
     LockOutlined,
     UserOutlined,
-    UserAddOutlined,
+    PlusOutlined ,
     DeleteOutlined,
     QuestionCircleOutlined,
     EditOutlined,
@@ -31,11 +29,22 @@ export default function Index() {
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
+    const [searching, setSearching] = useState(false);
+    const [sortField, setSortField] = useState("id");
+    const [sortOrder, setSortOrder] = useState("desc");
 
-    const getData = async () => {
+    const getData = async (isSearch = false) => {
+        if (isSearch) {
+            setSearching(true);
+        }
         setLoading(true);
 
-        const params = [`page=${page}`, `search=${search}`].join("&");
+        const params = [
+            `page=${page}`,
+            `search=${search}`,
+            `sortField=${sortField}`,
+            `sortOrder=${sortOrder}`,
+        ].join("&");
 
         try {
             const res = await axios.get(`/admin/user/getData?${params}`);
@@ -47,12 +56,24 @@ export default function Index() {
             console.log(err);
         } finally {
             setLoading(false);
+            setSearching(false);
         }
     };
 
+    //antd accept 3 params in table onchange[pagination, filter, sorter]
+    const handleTableChange = (pagination, filters, sorter) => {
+        const orderMap = {
+            ascend: "asc",
+            descend: "desc",
+        };
+
+        setSortField(sorter.field);
+        setSortOrder(orderMap[sorter.order]);
+    };
+
     useEffect(() => {
-        getData(page);
-    }, [page]);
+        getData(false);
+    }, [page, sortField, sortOrder]);
 
     const [api, contextHolder] = notification.useNotification();
     const openNotification = (type, placement, title, msg) => {
@@ -199,16 +220,16 @@ export default function Index() {
                                     placeholder="Input name or email"
                                     allowClear
                                     enterButton="Search"
+                                    loading={searching}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    loading={loading}
-                                    onSearch={getData}
+                                    onSearch={() => getData(true)}
                                 />
-                                
+
                                 <Button
                                     type="primary"
                                     size="medium"
                                     onClick={showCreateModal}
-                                    icon={<UserAddOutlined />}
+                                    icon={<PlusOutlined  />}
                                 >
                                     New
                                 </Button>
@@ -217,15 +238,29 @@ export default function Index() {
                                 loading={loading}
                                 dataSource={data}
                                 rowKey={(data) => data.id}
-                                pagination={false}
+                                pagination={{
+                                    current: page,
+                                    total: total,
+                                    pageSize: 10,
+                                    showSizeChanger: false,
+                                    onChange: (page) => setPage(page),
+                                }}
+                                onChange={handleTableChange}
                             >
-                                <Column title="ID" dataIndex="id" key="id" />
                                 <Column
+                                    sorter={true}
+                                    title="ID"
+                                    dataIndex="id"
+                                    key="id"
+                                />
+                                <Column
+                                    sorter={true}
                                     title="Name"
                                     dataIndex="name"
                                     key="name"
                                 />
                                 <Column
+                                    sorter={true}
                                     title="Email"
                                     dataIndex="email"
                                     key="email"
@@ -269,15 +304,6 @@ export default function Index() {
                                     )}
                                 />
                             </Table>
-                            <div className="my-4">
-                                <Pagination
-                                    current={page}
-                                    total={total}
-                                    pageSize={10}
-                                    onChange={(page) => setPage(page)}
-                                    showSizeChanger={false}
-                                />
-                            </div>
                         </div>
                     </div>
                     {/* Modal */}
@@ -370,7 +396,7 @@ export default function Index() {
                                     <Button
                                         htmlType="submit"
                                         type="primary"
-                                        icon={<UserAddOutlined />}
+                                        icon={<PlusOutlined  />}
                                         disabled={processing}
                                         loading={processing}
                                     >
