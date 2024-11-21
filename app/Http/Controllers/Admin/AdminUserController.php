@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use Auth;
 use Illuminate\Http\Request;
@@ -21,11 +22,14 @@ class AdminUserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function getData()
+    public function getData(Request $request)
     {
-        return User::whereNot('id', Auth::user()->id)->get();
+        return User::where('name', 'like', "{$request->search}%")
+                    ->orwhere('email', 'like', "{$request->search}%")
+                    ->whereNot('id', Auth::user()->id)
+                    ->orderBy('id', 'desc')
+                    ->paginate(10);
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -41,6 +45,8 @@ class AdminUserController extends Controller
     public function store(StoreUserRequest $request)
     {
         $data = $request->validated();
+
+        $data['password'] = bcrypt($data['password']);
 
         User::create($data);
 
@@ -68,9 +74,24 @@ class AdminUserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(UpdateUserRequest $request, string $id)
+    {   
+        
+        $data = $request->validated();
+
+        $user = User::findOrFail($id);
+
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return response()->json([
+            'status' => 'updated'
+        ], 200);
     }
 
     /**
