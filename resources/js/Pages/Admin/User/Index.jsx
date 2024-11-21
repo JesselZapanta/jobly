@@ -30,8 +30,9 @@ export default function Index() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [searching, setSearching] = useState(false);
-    const [sortField, setSortField] = useState("id");
-    const [sortOrder, setSortOrder] = useState("desc");
+
+    const [sortField, setSortField] = useState("id"); 
+    const [sortOrder, setSortOrder] = useState("asc");
 
     const getData = async (isSearch = false) => {
         if (isSearch) {
@@ -60,15 +61,11 @@ export default function Index() {
         }
     };
 
-    //antd accept 3 params in table onchange[pagination, filter, sorter]
+    //antd onchange table has 3 params
     const handleTableChange = (pagination, filters, sorter) => {
-        const orderMap = {
-            ascend: "asc",
-            descend: "desc",
-        };
-
-        setSortField(sorter.field);
-        setSortOrder(orderMap[sorter.order]);
+        setSortField(sorter.field || "id"); 
+        setSortOrder(sorter.order === "ascend" ? "asc" : "desc"); 
+        setPage(pagination.current);
     };
 
     useEffect(() => {
@@ -229,7 +226,7 @@ export default function Index() {
                                     type="primary"
                                     size="medium"
                                     onClick={showCreateModal}
-                                    icon={<PlusOutlined  />}
+                                    icon={<PlusOutlined />}
                                 >
                                     New
                                 </Button>
@@ -396,7 +393,7 @@ export default function Index() {
                                     <Button
                                         htmlType="submit"
                                         type="primary"
-                                        icon={<PlusOutlined  />}
+                                        icon={<PlusOutlined />}
                                         disabled={processing}
                                         loading={processing}
                                     >

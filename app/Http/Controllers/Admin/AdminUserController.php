@@ -24,6 +24,7 @@ class AdminUserController extends Controller
      */
     public function getData(Request $request)
     {
+        // return $request->sortOrder;
         return User::where('name', 'like', "{$request->search}%")
                     ->orwhere('email', 'like', "{$request->search}%")
                     ->whereNot('id', Auth::user()->id)
