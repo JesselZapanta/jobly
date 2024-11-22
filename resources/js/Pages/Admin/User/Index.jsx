@@ -9,6 +9,7 @@ import {
     Space,
     notification,
     Row,
+    Select,
 } from "antd";
 import {
     MailOutlined,
@@ -97,6 +98,8 @@ export default function Index() {
             email: "",
             password: "",
             password_confirmation: "",
+            role: "",
+            status: "",
         });
     };
 
@@ -108,6 +111,8 @@ export default function Index() {
             email: user.email,
             password: "",
             password_confirmation: "",
+            role: user.role === 0 ? 'Admin' : 'User',
+            status: user.status === 1 ? 'Active' : 'Inactive',
         });
     };
 
@@ -344,6 +349,41 @@ export default function Index() {
                                     prefix={<MailOutlined />}
                                 />
                             </Form.Item>
+
+                            <div className="flex gap-4">
+                                <Form.Item
+                                    label="ROLE"
+                                    name="role"
+                                    validateStatus={errors?.role ? "error" : ""}
+                                    help={errors?.role ? errors?.role[0] : ""}
+                                    className="w-full"
+                                >
+                                    <Select
+                                        options={[
+                                            { value: "0", label: "Admin" },
+                                            { value: "1", label: "User" },
+                                        ]}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    label="STATUS"
+                                    name="status"
+                                    validateStatus={
+                                        errors?.status ? "error" : ""
+                                    }
+                                    help={
+                                        errors?.status ? errors?.status[0] : ""
+                                    }
+                                    className="w-full"
+                                >
+                                    <Select
+                                        options={[
+                                            { value: "1", label: "Active" },
+                                            { value: "0", label: "Inactive" },
+                                        ]}
+                                    />
+                                </Form.Item>
+                            </div>
 
                             <Form.Item
                                 label="PASSWORD"

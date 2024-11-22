@@ -48,8 +48,8 @@ class AdminUserController extends Controller
         $data = $request->validated();
 
         $data['password'] = bcrypt($data['password']);
-
         User::create($data);
+        
 
         return response()->json([
             'status' => 'created'
