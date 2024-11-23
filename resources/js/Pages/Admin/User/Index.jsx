@@ -10,6 +10,7 @@ import {
     notification,
     Row,
     Select,
+    Upload,
 } from "antd";
 import {
     MailOutlined,
@@ -111,8 +112,8 @@ export default function Index() {
             email: user.email,
             password: "",
             password_confirmation: "",
-            role: user.role === 0 ? 'Admin' : 'User',
-            status: user.status === 1 ? 'Active' : 'Inactive',
+            role: user.role,
+            status: user.status,
         });
     };
 
@@ -323,32 +324,77 @@ export default function Index() {
                             layout="vertical"
                             autoComplete="off"
                         >
-                            <Form.Item
-                                label="NAME"
-                                name="name"
-                                // Custom error handling
-                                validateStatus={errors?.name ? "error" : ""}
-                                help={errors?.name ? errors.name[0] : ""}
-                            >
-                                <Input
-                                    placeholder="Name"
-                                    // size="large"
-                                    prefix={<UserOutlined />}
-                                />
-                            </Form.Item>
+                            <div className="flex gap-4">
+                                <div className="w-full">
+                                    <Form.Item
+                                        label="NAME"
+                                        name="name"
+                                        // Custom error handling
+                                        validateStatus={
+                                            errors?.name ? "error" : ""
+                                        }
+                                        help={
+                                            errors?.name ? errors.name[0] : ""
+                                        }
+                                    >
+                                        <Input
+                                            placeholder="Name"
+                                            // size="large"
+                                            prefix={<UserOutlined />}
+                                        />
+                                    </Form.Item>
 
-                            <Form.Item
-                                label="EMAIL"
-                                name="email"
-                                validateStatus={errors?.email ? "error" : ""}
-                                help={errors?.email ? errors?.email[0] : ""}
-                            >
-                                <Input
-                                    placeholder="Email"
-                                    // size="large"
-                                    prefix={<MailOutlined />}
-                                />
-                            </Form.Item>
+                                    <Form.Item
+                                        label="EMAIL"
+                                        name="email"
+                                        validateStatus={
+                                            errors?.email ? "error" : ""
+                                        }
+                                        help={
+                                            errors?.email
+                                                ? errors?.email[0]
+                                                : ""
+                                        }
+                                    >
+                                        <Input
+                                            placeholder="Email"
+                                            // size="large"
+                                            prefix={<MailOutlined />}
+                                        />
+                                    </Form.Item>
+                                </div>
+
+                                <Form.Item
+                                    label="AVATAR"
+                                    name="avatar"
+                                    valuePropName="fileList"
+                                    className="w-full"
+                                    getValueFromEvent={(e) =>
+                                        Array.isArray(e) ? e : e?.fileList
+                                    }
+                                    validateStatus={
+                                        errors?.avatar ? "error" : ""
+                                    }
+                                    help={
+                                        errors?.avatar ? errors.avatar[0] : ""
+                                    }
+                                >
+                                    <Upload
+                                        name="avatar"
+                                        listType="picture-card"
+                                        maxCount={1}
+                                        accept="image/*"
+                                        beforeUpload={() => false} // Prevent automatic upload
+                                    >
+                                        <div>
+                                            <PlusOutlined />
+                                            <div style={{ marginTop: 8 }}>
+                                                Upload
+                                            </div>
+                                        </div>
+                                    </Upload>
+                                </Form.Item>
+                            </div>
 
                             <div className="flex gap-4">
                                 <Form.Item
@@ -360,8 +406,8 @@ export default function Index() {
                                 >
                                     <Select
                                         options={[
-                                            { value: "0", label: "Admin" },
-                                            { value: "1", label: "User" },
+                                            { value: 0, label: "Admin" },
+                                            { value: 1, label: "User" },
                                         ]}
                                     />
                                 </Form.Item>
@@ -378,8 +424,8 @@ export default function Index() {
                                 >
                                     <Select
                                         options={[
-                                            { value: "1", label: "Active" },
-                                            { value: "0", label: "Inactive" },
+                                            { value: 0, label: "Active" },
+                                            { value: 1, label: "Inactive" },
                                         ]}
                                     />
                                 </Form.Item>

@@ -47,7 +47,16 @@ class AdminUserController extends Controller
     {
         $data = $request->validated();
 
+        // return $data;
+
         $data['password'] = bcrypt($data['password']);
+
+        $avatar = $data['avatar'];
+
+        if($avatar){
+            $data['avatar'] = $avatar->store('avatars', 'public');
+        }
+
         User::create($data);
         
 
