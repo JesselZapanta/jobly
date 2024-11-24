@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import {
     Button,
     Form,
@@ -11,7 +11,9 @@ import {
     Row,
     Select,
     Upload,
+    message,
 } from "antd";
+
 import {
     MailOutlined,
     LockOutlined,
@@ -20,6 +22,7 @@ import {
     DeleteOutlined,
     QuestionCircleOutlined,
     EditOutlined,
+    UploadOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import Column from "antd/es/table/Column";
@@ -35,6 +38,8 @@ export default function Index() {
 
     const [sortField, setSortField] = useState("id"); 
     const [sortOrder, setSortOrder] = useState("asc");
+
+    const [tempAvatar, setTempAvatar] = useState('');
 
     const getData = async (isSearch = false) => {
         if (isSearch) {
@@ -117,6 +122,59 @@ export default function Index() {
         });
     };
 
+    const { props } = usePage();
+    const csrfToken = props.auth.csrf_token || ''; 
+
+
+    const removeAvatar = (avatar) => {
+        axios
+            .post(`/avatar-temp-remove/${avatar}`)
+            .then((res) => {
+                if (res.data.status === "remove") {
+                    message.success("Avatar removed.");
+                }
+                if (res.data.status === "error") {
+                    alert("error");
+                }
+            });
+    }
+
+    const Uploadprops = {
+        name: "avatar",
+        action: "/avatar-temp-upload",
+        headers: {
+            "X-CSRF-Token": csrfToken,
+        },
+
+        beforeUpload: (file) => {
+            const isPNG = file.type === "image/png";
+            const isJPG = file.type === "image/jpeg";
+
+            if (!isPNG && !isJPG) {
+                message.error(`${file.name} is not a png/jpg file.`);
+            }
+            return isPNG || isJPG || Upload.LIST_IGNORE;
+        },
+
+        onChange(info) {
+            // console.log("info onchange", info);
+
+            if (info.file.status !== "uploading") {
+                console.log(info.file, info.fileList);
+            }
+            if (info.file.status === "done") {
+                message.success("Avatar uploaded succesfully.");
+                setTempAvatar( info.file.response);
+            } else if (info.file.status === "error") {
+                message.error("Avatar upload failed.");
+            }
+        },
+
+        onRemove(info) {
+            console.log(info.response);
+            removeAvatar(info.response);
+        },
+    };
     const handleSubmit = async (values) => {
         setProcessing(true);
 
@@ -174,6 +232,7 @@ export default function Index() {
         form.resetFields();
         setErrors({});
         setUser(null);
+        removeAvatar(tempAvatar);
     };
 
     const handleDelete = async (id) => {
@@ -269,6 +328,12 @@ export default function Index() {
                                     key="email"
                                 />
                                 <Column
+                                    sorter={true}
+                                    title="Avatar"
+                                    dataIndex="avatar"
+                                    key="avatar"
+                                />
+                                <Column
                                     title="Action"
                                     key="action"
                                     render={(_, record) => (
@@ -324,77 +389,32 @@ export default function Index() {
                             layout="vertical"
                             autoComplete="off"
                         >
-                            <div className="flex gap-4">
-                                <div className="w-full">
-                                    <Form.Item
-                                        label="NAME"
-                                        name="name"
-                                        // Custom error handling
-                                        validateStatus={
-                                            errors?.name ? "error" : ""
-                                        }
-                                        help={
-                                            errors?.name ? errors.name[0] : ""
-                                        }
-                                    >
-                                        <Input
-                                            placeholder="Name"
-                                            // size="large"
-                                            prefix={<UserOutlined />}
-                                        />
-                                    </Form.Item>
+                            <Form.Item
+                                label="NAME"
+                                name="name"
+                                // Custom error handling
+                                validateStatus={errors?.name ? "error" : ""}
+                                help={errors?.name ? errors.name[0] : ""}
+                            >
+                                <Input
+                                    placeholder="Name"
+                                    // size="large"
+                                    prefix={<UserOutlined />}
+                                />
+                            </Form.Item>
 
-                                    <Form.Item
-                                        label="EMAIL"
-                                        name="email"
-                                        validateStatus={
-                                            errors?.email ? "error" : ""
-                                        }
-                                        help={
-                                            errors?.email
-                                                ? errors?.email[0]
-                                                : ""
-                                        }
-                                    >
-                                        <Input
-                                            placeholder="Email"
-                                            // size="large"
-                                            prefix={<MailOutlined />}
-                                        />
-                                    </Form.Item>
-                                </div>
-
-                                <Form.Item
-                                    label="AVATAR"
-                                    name="avatar"
-                                    valuePropName="fileList"
-                                    className="w-full"
-                                    getValueFromEvent={(e) =>
-                                        Array.isArray(e) ? e : e?.fileList
-                                    }
-                                    validateStatus={
-                                        errors?.avatar ? "error" : ""
-                                    }
-                                    help={
-                                        errors?.avatar ? errors.avatar[0] : ""
-                                    }
-                                >
-                                    <Upload
-                                        name="avatar"
-                                        listType="picture-card"
-                                        maxCount={1}
-                                        accept="image/*"
-                                        beforeUpload={() => false} // Prevent automatic upload
-                                    >
-                                        <div>
-                                            <PlusOutlined />
-                                            <div style={{ marginTop: 8 }}>
-                                                Upload
-                                            </div>
-                                        </div>
-                                    </Upload>
-                                </Form.Item>
-                            </div>
+                            <Form.Item
+                                label="EMAIL"
+                                name="email"
+                                validateStatus={errors?.email ? "error" : ""}
+                                help={errors?.email ? errors?.email[0] : ""}
+                            >
+                                <Input
+                                    placeholder="Email"
+                                    // size="large"
+                                    prefix={<MailOutlined />}
+                                />
+                            </Form.Item>
 
                             <div className="flex gap-4">
                                 <Form.Item
@@ -465,6 +485,31 @@ export default function Index() {
                                     // size="large"
                                     prefix={<LockOutlined />}
                                 />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="AVATAR"
+                                name="avatar"
+                                valuePropName="fileList"
+                                className="w-full"
+                                getValueFromEvent={(e) =>
+                                    Array.isArray(e) ? e : e?.fileList
+                                }
+                                validateStatus={errors?.avatar ? "error" : ""}
+                                help={errors?.avatar ? errors.avatar[0] : ""}
+                            >
+                                <Upload
+                                    listType="picture-card"
+                                    maxCount={1}
+                                    {...Uploadprops}
+                                >
+                                    <div>
+                                        <UploadOutlined />
+                                        <div style={{ marginTop: 8 }}>
+                                            Upload
+                                        </div>
+                                    </div>
+                                </Upload>
                             </Form.Item>
 
                             <Row justify="end">

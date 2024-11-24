@@ -25,6 +25,12 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/admin/user/getData', [AdminUserController::class, 'getData']);
     Route::put('/admin/user/update/{id}', [AdminUserController::class, 'update']);
     Route::delete('/admin/user/delete/{id}', [AdminUserController::class, 'destroy']);
+
+    Route::post('/avatar-temp-upload', [AdminUserController::class, 'tempUpload']);
+    Route::post('/avatar-temp-remove/{filename}', [AdminUserController::class, 'removeUpload']);
+    Route::post('/article-image-remove/{id}/{filename}', [AdminUserController::class, 'articleImageRemove']);
+
+
 });
 
 Route::middleware('auth')->group(function () {

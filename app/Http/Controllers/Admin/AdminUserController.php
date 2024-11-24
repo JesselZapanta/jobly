@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use Auth;
 use Illuminate\Http\Request;
+use Storage;
 
 class AdminUserController extends Controller
 {
@@ -40,6 +41,31 @@ class AdminUserController extends Controller
         //
     }
 
+    public function tempUpload(Request $req){
+        $req->validate([
+            'avatar' => ['required', 'mimes:jpg,jpeg,png']
+        ]);
+        
+        $file = $req->avatar;
+        $fileGenerated = md5($file->getClientOriginalName() . time());
+        $imageName = $fileGenerated . '.' . $file->getClientOriginalExtension();
+        $imagePath = $file->storeAs('tempAvatars', $imageName, 'public');
+        $name = explode('/', $imagePath);
+        return $name[1];
+    }
+
+    public function removeUpload($fileName){
+
+        // return $fileName;
+        if (Storage::disk('public')->exists('tempAvatars/' . $fileName)) {
+            Storage::disk('public')->delete('tempAvatars/' . $fileName);
+
+            return response()->json([
+                'status' => 'remove'
+            ], 200);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -47,19 +73,21 @@ class AdminUserController extends Controller
     {
         $data = $request->validated();
 
-        // return $data;
+        $imgFilename = $request->avatar[0]['response'];
+        $data['avatar'] = $imgFilename;
 
         $data['password'] = bcrypt($data['password']);
 
-        $avatar = $data['avatar'];
+        User::create($data);
 
-        if($avatar){
-            $data['avatar'] = $avatar->store('avatars', 'public');
+        if (Storage::disk('public')->exists('tempAvatars/' . $imgFilename)) {
+            // Move the file
+            Storage::disk('public')->move('tempAvatars/' . $imgFilename, 'avatars/' . $imgFilename); 
+            Storage::disk('public')->delete('tempAvatars/' . $imgFilename);
         }
 
-        User::create($data);
-        
 
+        
         return response()->json([
             'status' => 'created'
         ], 200);
@@ -96,6 +124,17 @@ class AdminUserController extends Controller
         } else {
             unset($data['password']);
         }
+
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $avatarPath;
+        }
+
 
         $user->update($data);
 
