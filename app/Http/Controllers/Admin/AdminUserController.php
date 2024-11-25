@@ -43,13 +43,13 @@ class AdminUserController extends Controller
 
     public function tempUpload(Request $req){
         $req->validate([
-            'avatar' => ['required', 'mimes:jpg,jpeg,png']
+            'avatar' => ['mimes:jpg,jpeg,png']
         ]);
         
         $file = $req->avatar;
         $fileGenerated = md5($file->getClientOriginalName() . time());
         $imageName = $fileGenerated . '.' . $file->getClientOriginalExtension();
-        $imagePath = $file->storeAs('tempAvatars', $imageName, 'public');
+        $imagePath = $file->storeAs('temp', $imageName, 'public');
         $name = explode('/', $imagePath);
         return $name[1];
     }
@@ -57,14 +57,40 @@ class AdminUserController extends Controller
     public function removeUpload($fileName){
 
         // return $fileName;
-        if (Storage::disk('public')->exists('tempAvatars/' . $fileName)) {
-            Storage::disk('public')->delete('tempAvatars/' . $fileName);
+        if (Storage::disk('public')->exists('temp/' . $fileName)) {
+            Storage::disk('public')->delete('temp/' . $fileName);
 
             return response()->json([
                 'status' => 'remove'
             ], 200);
         }
     }
+
+    public function replaceUpload($id, $fileName){
+        $data = User::find($id);
+        $oldAvatar = $data->avatar;
+
+        // return $oldAvatar;
+        $data->avatar = null;
+        $data->save();
+
+        if (Storage::disk('public')->exists('avatars/' . $oldAvatar)) {
+            Storage::disk('public')->delete('avatars/' . $oldAvatar);
+
+            if (Storage::disk('public')->exists('temp/' . $fileName)) {
+                Storage::disk('public')->delete('temp/' . $fileName);
+            }
+
+            return response()->json([
+                'status' => 'replace'
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 'error'
+        ], 200);
+    }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -80,10 +106,10 @@ class AdminUserController extends Controller
 
         User::create($data);
 
-        if (Storage::disk('public')->exists('tempAvatars/' . $imgFilename)) {
+        if (Storage::disk('public')->exists('temp/' . $imgFilename)) {
             // Move the file
-            Storage::disk('public')->move('tempAvatars/' . $imgFilename, 'avatars/' . $imgFilename); 
-            Storage::disk('public')->delete('tempAvatars/' . $imgFilename);
+            Storage::disk('public')->move('temp/' . $imgFilename, 'avatars/' . $imgFilename); 
+            Storage::disk('public')->delete('temp/' . $imgFilename);
         }
 
 
@@ -125,18 +151,17 @@ class AdminUserController extends Controller
             unset($data['password']);
         }
 
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $validated['avatar'] = $avatarPath;
-        }
-
+        $imgFilename = $request->avatar[0]['response'];
+        $data['avatar'] = $imgFilename;
 
         $user->update($data);
+
+        if (Storage::disk('public')->exists('temp/' . $imgFilename)) {
+            // Move the file
+            Storage::disk('public')->move('temp/' . $imgFilename, 'avatars/' . $imgFilename); 
+            Storage::disk('public')->delete('temp/' . $imgFilename);
+        }
+
 
         return response()->json([
             'status' => 'updated'

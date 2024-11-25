@@ -12,6 +12,7 @@ import {
     Select,
     Upload,
     message,
+    Avatar,
 } from "antd";
 
 import {
@@ -40,6 +41,7 @@ export default function Index() {
     const [sortOrder, setSortOrder] = useState("asc");
 
     const [tempAvatar, setTempAvatar] = useState('');
+    const [isUpload, setIsUpload] = useState(false);
 
     const getData = async (isSearch = false) => {
         if (isSearch) {
@@ -110,8 +112,19 @@ export default function Index() {
     };
 
     const showEditModal = (user) => {
+
+            const avatar = user.avatar ? [
+                                        {
+                                            uid: "-1",
+                                            name: user.avatar,
+                                            url: `/storage/avatars/${user.avatar}`,
+                                        },
+                                    ] : [];
+
+
         setUser(user);
         setIsModalOpen(true);
+
         form.setFieldsValue({
             name: user.name,
             email: user.email,
@@ -119,8 +132,10 @@ export default function Index() {
             password_confirmation: "",
             role: user.role,
             status: user.status,
+            avatar: avatar,
         });
     };
+
 
     const { props } = usePage();
     const csrfToken = props.auth.csrf_token || ''; 
@@ -132,6 +147,7 @@ export default function Index() {
             .then((res) => {
                 if (res.data.status === "remove") {
                     message.success("Avatar removed.");
+                    setIsUpload(false);
                 }
                 if (res.data.status === "error") {
                     alert("error");
@@ -157,24 +173,39 @@ export default function Index() {
         },
 
         onChange(info) {
-            // console.log("info onchange", info);
-
-            if (info.file.status !== "uploading") {
-                console.log(info.file, info.fileList);
-            }
             if (info.file.status === "done") {
-                message.success("Avatar uploaded succesfully.");
-                setTempAvatar( info.file.response);
+                // Ensure the upload is complete
+                if (user) {
+                    axios
+                        .post(`/avatar-image-replace/${user.id}/${user.avatar}`)
+                        .then((res) => {
+                            if (res.data.status === "replace") {
+                                message.success("File Replaced");
+                            }
+                        });
+                } else {
+                    message.success("Avatar uploaded successfully.");
+                    setTempAvatar(info.file.response);
+                    setIsUpload(true);
+                }
             } else if (info.file.status === "error") {
                 message.error("Avatar upload failed.");
             }
         },
 
         onRemove(info) {
-            console.log(info.response);
+            // Prevent removal if user exists
+            if (user) {
+                message.error("You cannot remove the avatar.");
+                return false; // Prevent file removal
+            }
+
             removeAvatar(info.response);
+            return true; 
         },
     };
+
+
     const handleSubmit = async (values) => {
         setProcessing(true);
 
@@ -232,7 +263,11 @@ export default function Index() {
         form.resetFields();
         setErrors({});
         setUser(null);
-        removeAvatar(tempAvatar);
+        getData();
+
+        if(isUpload){
+            removeAvatar(tempAvatar);
+        }
     };
 
     const handleDelete = async (id) => {
@@ -315,6 +350,20 @@ export default function Index() {
                                     dataIndex="id"
                                     key="id"
                                 />
+
+                                <Column
+                                    title="Avatar"
+                                    dataIndex="avatar"
+                                    key="avatar"
+                                    render={(avatar) => (
+                                        <Avatar
+                                            size="large"
+                                            src={`/storage/avatars/${avatar}`}
+                                            icon={<UserOutlined />}
+                                        />
+                                    )}
+                                />
+
                                 <Column
                                     sorter={true}
                                     title="Name"
@@ -326,12 +375,6 @@ export default function Index() {
                                     title="Email"
                                     dataIndex="email"
                                     key="email"
-                                />
-                                <Column
-                                    sorter={true}
-                                    title="Avatar"
-                                    dataIndex="avatar"
-                                    key="avatar"
                                 />
                                 <Column
                                     title="Action"

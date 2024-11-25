@@ -6,7 +6,7 @@ import {
     UserOutlined,
     LockOutlined,
 } from "@ant-design/icons";
-import { Button, Drawer, Menu } from "antd";
+import { Avatar, Button, Drawer, Menu } from "antd";
 import { Link, usePage } from "@inertiajs/react"; 
 import ApplicationLogo from "@/Components/ApplicationLogo";
 
@@ -37,9 +37,13 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const profile = [
         {
-            label: user ? user.name : "User",
+            label: ( <Avatar
+                    size="large"
+                    src={`/storage/avatars/${user.avatar}`}
+                    icon={<UserOutlined />}
+                />),
+            
             key: "profile",
-            icon: <UserOutlined />,
             children: [
                 {
                     // label: "User",

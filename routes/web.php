@@ -28,7 +28,7 @@ Route::middleware(['auth'])->group(function() {
 
     Route::post('/avatar-temp-upload', [AdminUserController::class, 'tempUpload']);
     Route::post('/avatar-temp-remove/{filename}', [AdminUserController::class, 'removeUpload']);
-    Route::post('/article-image-remove/{id}/{filename}', [AdminUserController::class, 'articleImageRemove']);
+    Route::post('/avatar-image-replace/{id}/{filename}', [AdminUserController::class, 'replaceUpload']);
 
 
 });
