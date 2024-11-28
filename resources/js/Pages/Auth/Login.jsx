@@ -17,7 +17,9 @@ export default function Login({ status, canResetPassword }) {
         axios
             .post("/login", values)
             .then((res) => {
-                router.visit("/login"); //change to dashboard controller
+                if(res.data.status === 'login'){
+                    router.visit("/dashboard"); //change to dashboard controller
+                }
             })
             .catch((err) => {
                 setErrors(err.response.data.errors);

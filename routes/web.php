@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -15,11 +17,14 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return Inertia::render('Dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth'])->group(function() {
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::middleware(['auth', 'admin'])->group(function() {
+    Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/user', [AdminUserController::class, 'index'])->name('admin.user');
     Route::post('/admin/user/store', [AdminUserController::class, 'store']);
     Route::get('/admin/user/getData', [AdminUserController::class, 'getData']);
@@ -29,8 +34,6 @@ Route::middleware(['auth'])->group(function() {
     Route::post('/avatar-temp-upload', [AdminUserController::class, 'tempUpload']);
     Route::post('/avatar-temp-remove/{filename}', [AdminUserController::class, 'removeUpload']);
     Route::post('/avatar-image-replace/{id}/{filename}', [AdminUserController::class, 'replaceUpload']);
-
-
 });
 
 Route::middleware('auth')->group(function () {
