@@ -6,7 +6,7 @@ import { Button, Form, Input, Select } from "antd";
 import { useState } from "react";
 import axios from "axios";
 
-export default function Register() {
+export default function Profile() {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
@@ -30,17 +30,7 @@ export default function Register() {
     return (
         <GuestLayout>
             <Head title="Log in" />
-
-            <div className="w-full rounded-lg overflow-hidden mb-4">
-                <Link href="/">
-                    <img
-                        src="/storage/images/banner.png"
-                        alt="Jobly"
-                        className="w-full j-full"
-                    />
-                </Link>
-            </div>
-
+            <h2 className="mb-2 font-bold">COMPANY INFORMATION</h2>
             <Form
                 form={form}
                 onFinish={handleSubmit}
@@ -50,86 +40,93 @@ export default function Register() {
                 layout="vertical"
                 autoComplete="off"
                 initialValues={{
-                    name: "",
-                    email: "",
-                    password: "",
-                    password_confirmation: "",
-                    role: "",
+                    company_name: "",
+                    contact_person: "",
+                    phone: "",
+                    website: "",
+                    address: "",
+                    industry: "",
+                    description: "",
                 }}
             >
                 <Form.Item
-                    label="NAME"
-                    name="name"
+                    label="COMPANY NAME"
+                    name="company_name"
                     // Custom error handling
-                    validateStatus={errors?.name ? "error" : ""}
-                    help={errors?.name ? errors.name[0] : ""}
+                    validateStatus={errors?.company_name ? "error" : ""}
+                    help={errors?.company_name ? errors.company_name[0] : ""}
                 >
                     <Input
-                        placeholder="Name"
+                        placeholder="Company Name"
                         size="large"
                         prefix={<UserOutlined />}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label="EMAIL"
-                    name="email"
-                    validateStatus={errors?.email ? "error" : ""}
-                    help={errors?.email ? errors?.email[0] : ""}
+                    label="CONTACT"
+                    name="contact"
+                    validateStatus={errors?.contact ? "error" : ""}
+                    help={errors?.contact ? errors?.contact[0] : ""}
                 >
                     <Input
-                        placeholder="Email"
+                        placeholder="number"
                         size="large"
                         prefix={<MailOutlined />}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label="PASSWORD"
-                    name="password"
-                    validateStatus={errors?.password ? "error" : ""}
-                    help={errors?.password ? errors?.password[0] : ""}
+                    label="WEBSITE"
+                    name="website"
+                    validateStatus={errors?.website ? "error" : ""}
+                    help={errors?.website ? errors?.website[0] : ""}
                 >
-                    <Input.Password
-                        placeholder="Password"
-                        type="password"
+                    <Input
+                        placeholder="Website"
+                        type="website"
                         size="large"
                         prefix={<LockOutlined />}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label="RE-TYPE PASSWORD"
-                    name="password_confirmation"
-                    validateStatus={
-                        errors?.password_confirmation ? "error" : ""
-                    }
-                    help={
-                        errors?.password_confirmation
-                            ? errors?.password_confirmation[0]
-                            : ""
-                    }
+                    label="DESCRIPTION"
+                    name="description"
+                    validateStatus={errors?.description ? "error" : ""}
+                    help={errors?.description ? errors?.description[0] : ""}
                 >
-                    <Input.Password
-                        placeholder="Re-type Password"
-                        type="password"
+                    <Input
+                        placeholder="Website"
+                        type="website"
                         size="large"
                         prefix={<LockOutlined />}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label="REGISTER AS (ROLE)"
-                    name="role"
-                    validateStatus={errors?.role ? "error" : ""}
-                    help={errors?.role ? errors?.role[0] : ""}
+                    label="INDUSTRY"
+                    name="industry"
+                    validateStatus={errors?.industry ? "error" : ""}
+                    help={errors?.industry ? errors?.industry[0] : ""}
                     className="w-full"
                 >
                     <Select
                         size="large"
                         options={[
-                            { value: 1, label: "Employer" },
-                            { value: 2, label: "Job Seeker" },
+                            { value: "it", label: "IT" },
+                            { value: "finance", label: "FINANCE" },
+                            { value: "healthcare", label: "HEALTHCARE" },
+                            { value: "education", label: "EDUCATION" },
+                            { value: "manufacturing", label: "MANUFACTURING" },
+                            { value: "retail", label: "RETAIL" },
+                            { value: "construction", label: "CONSTRUCTION" },
+                            { value: "hospitality", label: "HOSPITALITY" },
+                            {
+                                value: "transportation",
+                                label: "TRANSPORTATION",
+                            },
+                            { value: "energy", label: "ENERGY" },
                         ]}
                     />
                 </Form.Item>
@@ -144,15 +141,10 @@ export default function Register() {
                         disabled={loading}
                         loading={loading}
                     >
-                        Register
+                        Saved
                     </Button>
                 </Form.Item>
             </Form>
-            <div className="w-full flex justify-between">
-                <Button type="link" href={route("login")}>
-                    Already registered?
-                </Button>
-            </div>
         </GuestLayout>
     );
 }

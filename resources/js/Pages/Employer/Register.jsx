@@ -2,7 +2,7 @@ import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, router } from "@inertiajs/react";
 
 import { MailOutlined, LockOutlined, LoginOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select } from "antd";
+import { Button, Form, Input } from "antd";
 import { useState } from "react";
 import axios from "axios";
 
@@ -54,7 +54,6 @@ export default function Register() {
                     email: "",
                     password: "",
                     password_confirmation: "",
-                    role: "",
                 }}
             >
                 <Form.Item
@@ -115,22 +114,6 @@ export default function Register() {
                         type="password"
                         size="large"
                         prefix={<LockOutlined />}
-                    />
-                </Form.Item>
-
-                <Form.Item
-                    label="REGISTER AS (ROLE)"
-                    name="role"
-                    validateStatus={errors?.role ? "error" : ""}
-                    help={errors?.role ? errors?.role[0] : ""}
-                    className="w-full"
-                >
-                    <Select
-                        size="large"
-                        options={[
-                            { value: 1, label: "Employer" },
-                            { value: 2, label: "Job Seeker" },
-                        ]}
                     />
                 </Form.Item>
 

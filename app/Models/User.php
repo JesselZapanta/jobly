@@ -22,7 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
-        'role',
+        'role', //0 = admin 1 = employer, 2 = Job Seekers
         'avatar',
     ];
 

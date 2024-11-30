@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EmployerDashboardController;
+use App\Http\Controllers\Employer\EmployerDashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -38,7 +38,9 @@ Route::middleware(['auth', 'admin'])->group(function() {
 });
 
 Route::middleware(['auth'])->group(function(){
+    Route::get('/employer/make-profile', [EmployerDashboardController::class, 'profile'])->name('employer.profile');
     Route::get('/employer/dashboard', [EmployerDashboardController::class, 'index'])->name('employer.dashboard');
+    
 });
 
 Route::middleware('auth')->group(function () {
