@@ -16,7 +16,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        //check if the role is 0 = admin
+    //check if the role is 0 = admin
 
     if(Auth::check() && Auth::user()->role === 0){
             return $next($request);

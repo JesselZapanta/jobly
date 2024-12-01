@@ -2,12 +2,13 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Employer;
 use Auth;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EmployerMiddlewarer
+class ProfileCheckMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,13 +17,12 @@ class EmployerMiddlewarer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        //check if the role is 1 = employer
+        $hasProfile = Employer::where('user_id', Auth::user()->id)->exists();
 
-        if(Auth::check() && Auth::user()->role === 1){
-                return $next($request);
-            }
-
-        abort(403, 'Access Denied'); 
+        if ($hasProfile) {
+            return redirect()->route('employer.profile');
+        }
         
+        return $next($request);
     }
 }

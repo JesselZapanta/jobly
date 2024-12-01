@@ -1,10 +1,12 @@
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, router } from "@inertiajs/react";
 
-import { MailOutlined, LockOutlined, LoginOutlined, UserOutlined } from "@ant-design/icons";
+import { MailOutlined, LockOutlined, LoginOutlined, UserOutlined, PhoneOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select } from "antd";
+const { TextArea } = Input;
 import { useState } from "react";
 import axios from "axios";
+
 
 export default function Profile() {
     const [form] = Form.useForm();
@@ -15,9 +17,11 @@ export default function Profile() {
         setLoading(true);
 
         axios
-            .post("/register", values)
+            .post("/employer/make-profile/store", values)
             .then((res) => {
-                router.visit("/login"); //change to dashboard controller
+                if (res.data.status === "created") {
+                    router.visit("/dashboard");
+                }
             })
             .catch((err) => {
                 setErrors(err.response.data.errors);
@@ -29,8 +33,10 @@ export default function Profile() {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Company Information" />
+
             <h2 className="mb-2 font-bold">COMPANY INFORMATION</h2>
+
             <Form
                 form={form}
                 onFinish={handleSubmit}
@@ -41,8 +47,7 @@ export default function Profile() {
                 autoComplete="off"
                 initialValues={{
                     company_name: "",
-                    contact_person: "",
-                    phone: "",
+                    contact: "",
                     website: "",
                     address: "",
                     industry: "",
@@ -70,9 +75,10 @@ export default function Profile() {
                     help={errors?.contact ? errors?.contact[0] : ""}
                 >
                     <Input
-                        placeholder="number"
+                        placeholder="09xxxxxxxxx"
                         size="large"
-                        prefix={<MailOutlined />}
+                        type="number"
+                        prefix={<PhoneOutlined />}
                     />
                 </Form.Item>
 
@@ -83,24 +89,37 @@ export default function Profile() {
                     help={errors?.website ? errors?.website[0] : ""}
                 >
                     <Input
-                        placeholder="Website"
+                        placeholder="example.com"
+                        addonBefore="https://"
                         type="website"
+                        size="large"
+                        // prefix={<LockOutlined />}
+                    />
+                </Form.Item>
+                
+                <Form.Item
+                    label="ADDRESS"
+                    name="address"
+                    validateStatus={errors?.address ? "error" : ""}
+                    help={errors?.address ? errors?.address[0] : ""}
+                >
+                    <Input
                         size="large"
                         prefix={<LockOutlined />}
                     />
                 </Form.Item>
 
                 <Form.Item
-                    label="DESCRIPTION"
+                    label="Description"
                     name="description"
                     validateStatus={errors?.description ? "error" : ""}
                     help={errors?.description ? errors?.description[0] : ""}
                 >
-                    <Input
-                        placeholder="Website"
-                        type="website"
+                    <TextArea
+                        placeholder="Company Description"
+                        allowClear
                         size="large"
-                        prefix={<LockOutlined />}
+                        rows={4}
                     />
                 </Form.Item>
 

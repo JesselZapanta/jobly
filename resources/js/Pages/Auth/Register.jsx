@@ -17,7 +17,9 @@ export default function Register() {
         axios
             .post("/register", values)
             .then((res) => {
-                router.visit("/login"); //change to dashboard controller
+                if (res.data.status === "register"){
+                    router.visit("/dashboard"); 
+                }
             })
             .catch((err) => {
                 setErrors(err.response.data.errors);
