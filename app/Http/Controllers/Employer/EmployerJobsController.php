@@ -7,5 +7,8 @@ use Illuminate\Http\Request;
 
 class EmployerJobsController extends Controller
 {
-    //
+    public function index()
+    {
+        return inertia('Employer/Jobs/Index');
+    }
 }

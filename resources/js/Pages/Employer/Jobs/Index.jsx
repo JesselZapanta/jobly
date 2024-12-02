@@ -1,12 +1,12 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { Head } from "@inertiajs/react";
 
-export default function Dashboard({auth, role}) {
+export default function Index({ auth }) {
     return (
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    {role} Dashboard
+                    Add Jobs
                 </h2>
             }
             auth={auth}
@@ -16,8 +16,8 @@ export default function Dashboard({auth, role}) {
             <div className="pt-4 pb-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            {role} Dashboard
+                        <div className="p-6 flex justify-between">
+                            <div className="text-gray-900">List of Jobs</div>
                         </div>
                     </div>
                 </div>

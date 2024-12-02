@@ -11,16 +11,16 @@ import { Link, usePage } from "@inertiajs/react";
 import ApplicationLogo from "@/Components/ApplicationLogo";
 
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ auth,header, children }) {
     const currentRoute = route().current();
-    
+
     const [drawerVisible, setDrawerVisible] = useState(false);
 
     const toggleDrawer = () => {
         setDrawerVisible(!drawerVisible);
     };
-    
-    const items = [
+
+    const admin = [
         {
             label: <Link href={route("dashboard")}>Dashboard</Link>,
             key: "dashboard",
@@ -33,16 +33,31 @@ export default function AuthenticatedLayout({ header, children }) {
         },
     ];
 
+    const employer = [
+        {
+            label: <Link href={route("dashboard")}>Dashboard</Link>,
+            key: "dashboard",
+            icon: <AppstoreOutlined />,
+        },
+        {
+            label: <Link href={route("employer.job.index")}>Jobs</Link>,
+            key: "employer.job.index",
+            icon: <UserOutlined />,
+        },
+    ];
+
     const user = usePage().props.auth.user;
 
     const profile = [
         {
-            label: ( <Avatar
+            label: (
+                <Avatar
                     size="large"
                     src={`/storage/avatars/${user.avatar}`}
                     icon={<UserOutlined />}
-                />),
-            
+                />
+            ),
+
             key: "profile",
             children: [
                 {
@@ -88,12 +103,22 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
                         {/* Desktop Menu */}
                         <div className="ml-2 flex-grow hidden md:block">
-                            <Menu
-                                className="max-h-16 leading-[64px]"
-                                selectedKeys={[currentRoute]}
-                                mode="horizontal"
-                                items={items}
-                            />
+                            {auth.user.role === 0 && (
+                                <Menu
+                                    className="max-h-16 leading-[64px]"
+                                    selectedKeys={[currentRoute]}
+                                    mode="horizontal"
+                                    items={admin}
+                                />
+                            )}
+                            {auth.user.role === 1 && (
+                                <Menu
+                                    className="max-h-16 leading-[64px]"
+                                    selectedKeys={[currentRoute]}
+                                    mode="horizontal"
+                                    items={employer}
+                                />
+                            )}
                         </div>
                         {/* Profile Menu */}
                         <div className="flex-grow hidden md:block">
@@ -121,11 +146,20 @@ export default function AuthenticatedLayout({ header, children }) {
                 onClose={toggleDrawer}
                 open={drawerVisible}
             >
-                <Menu
-                    mode="inline"
-                    selectedKeys={[currentRoute]}
-                    items={items}
-                />
+                {auth.user.role === 0 && (
+                    <Menu
+                        mode="inline"
+                        selectedKeys={[currentRoute]}
+                        items={admin}
+                    />
+                )}
+                {auth.user.role === 1 && (
+                    <Menu
+                        mode="inline"
+                        selectedKeys={[currentRoute]}
+                        items={employer}
+                    />
+                )}
                 <Menu mode="inline" className="mt-4" items={profile} />
             </Drawer>
 

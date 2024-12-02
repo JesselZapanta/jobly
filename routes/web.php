@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employer\EmployerDashboardController;
+use App\Http\Controllers\Employer\EmployerJobsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,8 @@ Route::middleware(['auth', 'employer', 'profile-check'])->group(function(){
     Route::get('/employer/make-profile', [EmployerDashboardController::class, 'profile'])->name('employer.profile');
     Route::post('/employer/make-profile/store', [EmployerDashboardController::class, 'store']);
     Route::get('/employer/dashboard', [EmployerDashboardController::class, 'index'])->name('employer.dashboard');
+
+    Route::get('/employer/job/index', [EmployerJobsController::class, 'index'])->name('employer.job.index');
 });
 
 Route::middleware('auth')->group(function () {

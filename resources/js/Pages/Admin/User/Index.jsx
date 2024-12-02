@@ -29,7 +29,7 @@ import { useEffect, useState } from "react";
 import Column from "antd/es/table/Column";
 import Search from "antd/es/input/Search";
 
-export default function Index() {
+export default function Index({ auth }) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [total, setTotal] = useState(0);
@@ -37,10 +37,10 @@ export default function Index() {
     const [search, setSearch] = useState("");
     const [searching, setSearching] = useState(false);
 
-    const [sortField, setSortField] = useState("id"); 
+    const [sortField, setSortField] = useState("id");
     const [sortOrder, setSortOrder] = useState("asc");
 
-    const [tempAvatar, setTempAvatar] = useState('');
+    const [tempAvatar, setTempAvatar] = useState("");
     const [isUpload, setIsUpload] = useState(false);
 
     const getData = async (isSearch = false) => {
@@ -72,8 +72,8 @@ export default function Index() {
 
     //antd onchange table has 3 params
     const handleTableChange = (pagination, filters, sorter) => {
-        setSortField(sorter.field || "id"); 
-        setSortOrder(sorter.order === "ascend" ? "asc" : "desc"); 
+        setSortField(sorter.field || "id");
+        setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
         setPage(pagination.current);
     };
 
@@ -112,15 +112,15 @@ export default function Index() {
     };
 
     const showEditModal = (user) => {
-
-            const avatar = user.avatar ? [
-                                        {
-                                            uid: "-1",
-                                            name: user.avatar,
-                                            url: `/storage/avatars/${user.avatar}`,
-                                        },
-                                    ] : [];
-
+        const avatar = user.avatar
+            ? [
+                  {
+                      uid: "-1",
+                      name: user.avatar,
+                      url: `/storage/avatars/${user.avatar}`,
+                  },
+              ]
+            : [];
 
         setUser(user);
         setIsModalOpen(true);
@@ -136,24 +136,20 @@ export default function Index() {
         });
     };
 
-
     const { props } = usePage();
-    const csrfToken = props.auth.csrf_token || ''; 
-
+    const csrfToken = props.auth.csrf_token || "";
 
     const removeAvatar = (avatar) => {
-        axios
-            .post(`/avatar-temp-remove/${avatar}`)
-            .then((res) => {
-                if (res.data.status === "remove") {
-                    message.success("Avatar removed.");
-                    setIsUpload(false);
-                }
-                if (res.data.status === "error") {
-                    alert("error");
-                }
-            });
-    }
+        axios.post(`/avatar-temp-remove/${avatar}`).then((res) => {
+            if (res.data.status === "remove") {
+                message.success("Avatar removed.");
+                setIsUpload(false);
+            }
+            if (res.data.status === "error") {
+                alert("error");
+            }
+        });
+    };
 
     const Uploadprops = {
         name: "avatar",
@@ -201,10 +197,9 @@ export default function Index() {
             }
 
             removeAvatar(info.response);
-            return true; 
+            return true;
         },
     };
-
 
     const handleSubmit = async (values) => {
         setProcessing(true);
@@ -265,7 +260,7 @@ export default function Index() {
         setUser(null);
         getData();
 
-        if(isUpload){
+        if (isUpload) {
             removeAvatar(tempAvatar);
         }
     };
@@ -299,6 +294,7 @@ export default function Index() {
                     User
                 </h2>
             }
+            auth={auth}
         >
             <Head title="Dashboard" />
 
