@@ -43,6 +43,7 @@ Route::middleware(['auth', 'employer'])->group(function(){
     Route::post('/employer/make-profile/store', [EmployerDashboardController::class, 'store']);
     Route::get('/employer/dashboard', [EmployerDashboardController::class, 'index'])->name('employer.dashboard');
 
+    Route::get('/employer/job/getData', [EmployerJobsController::class, 'getData']);
     Route::get('/employer/job/index', [EmployerJobsController::class, 'index'])->name('employer.job.index');
     Route::post('/employer/job/store', [EmployerJobsController::class, 'store']);
 });

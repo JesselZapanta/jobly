@@ -1,6 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
-import { Button, Divider, Form, Input, Modal, Row, Select, Space, Switch } from "antd";
+import { Button, Divider, Form, Input, Modal, notification, Row, Select, Space, Switch, Table } from "antd";
 
 import {
     MailOutlined,
@@ -20,11 +20,69 @@ import {
     CalendarOutlined,
     TeamOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TextArea from "antd/es/input/TextArea";
 import Search from "antd/es/input/Search";
+import axios from "axios";
+import Column from "antd/es/table/Column";
 
 export default function Index({ auth }) {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const [searching, setSearching] = useState(false);
+
+    const [sortField, setSortField] = useState("id");
+    const [sortOrder, setSortOrder] = useState("asc");
+
+    const getData = async (isSearch = false) => {
+        setLoading(true);
+        
+        if(isSearch){
+            setSearching(true)
+        }
+
+        const params = [
+            `page=${page}`, 
+            `search=${search}`,
+            `sortField=${sortField}`,
+            `sortOrder=${sortOrder}`
+        ].join("&");
+
+        try {
+            const res = await axios.get(`/employer/job/getData?${params}`);
+            
+            setData(res.data.data);
+            setTotal(res.data.total);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setLoading(false);
+            setSearching(false);
+        }
+    };
+
+    //antd onchange table has 3 params
+    const handleTableChange = (pagination, filters, sorter) => {
+        setSortField(sorter.field || "id");
+        setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
+        setPage(pagination.current);
+    };
+
+    useEffect(() => {
+        getData(false);
+    }, [page, sortField, sortOrder]);
+
+    const [api, contextHolder] = notification.useNotification();
+    const openNotification = (type, placement, title, msg) => {
+        api[type]({
+            message: title,
+            description: msg,
+            placement: placement,
+        });
+    };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [errors, setErrors] = useState({});
@@ -35,30 +93,36 @@ export default function Index({ auth }) {
     const handleSubmit = async (values) => {
         // console.log(values);
         setProcessing(true);
-        
-        try{
+
+        try {
             const res = await axios.post(`/employer/job/store`, values);
 
-            if(res.data.status === 'created'){
-                
+            if (res.data.status === "created") {
+                handleCancel();
+                openNotification(
+                    "success",
+                    "bottomRight",
+                    "Created!",
+                    "The job has been created successfully."
+                );
             }
-        }catch(err){
+        } catch (err) {
             // console.log(err.response.data.errors);
             setErrors(err.response.data.errors);
-        }finally{
+        } finally {
             setProcessing(false);
         }
-    }
+    };
 
     const showCreateModal = () => {
         setIsModalOpen(true);
-    }
+    };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-    }
-
-
+        form.resetFields();
+        setErrors({});
+    };
 
     return (
         <AuthenticatedLayout
@@ -69,7 +133,11 @@ export default function Index({ auth }) {
             }
             auth={auth}
         >
-            <Head title="Dashboard" />
+            <Head title="Jobs" />
+
+            {/* <pre>{JSON.stringify(data, null, 2)}sda</pre> */}
+
+            {contextHolder}
 
             <div className="pt-4 pb-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -84,9 +152,9 @@ export default function Index({ auth }) {
                                     placeholder="Input job title"
                                     allowClear
                                     enterButton="Search"
-                                    // loading={searching}
-                                    // onChange={(e) => setSearch(e.target.value)}
-                                    // onSearch={() => getData(true)}
+                                    loading={searching}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    onSearch={() => getData(true)}
                                 />
 
                                 <Button
@@ -98,6 +166,89 @@ export default function Index({ auth }) {
                                     New
                                 </Button>
                             </div>
+                            <Table
+                                loading={loading}
+                                dataSource={data}
+                                rowKey={(data) => data.id}
+                                pagination={{
+                                    current: page,
+                                    total: total,
+                                    pageSize: 10,
+                                    showSizeChanger: false,
+                                    onChange: (page) => setPage(page),
+                                }}
+                                onChange={handleTableChange}
+                            >
+                                <Column
+                                    sorter={true}
+                                    title="ID"
+                                    dataIndex="id"
+                                    key="id"
+                                />
+
+                                <Column
+                                    sorter={true}
+                                    title="job_title"
+                                    dataIndex="job_title"
+                                    key="job_title"
+                                />
+                                <Column
+                                    // sorter={true}
+                                    title="industry"
+                                    dataIndex="industry"
+                                    key="industry"
+                                />
+                                <Column
+                                    // sorter={true}
+                                    title="job_type"
+                                    dataIndex="job_type"
+                                    key="job_type"
+                                />
+                                <Column
+                                    // sorter={true}
+                                    title="status"
+                                    dataIndex="status"
+                                    key="status"
+                                />
+                                <Column
+                                    title="Action"
+                                    key="action"
+                                    render={(_, record) => (
+                                        <Space>
+                                            <Button
+                                                type="primary"
+                                                shape="circle"
+                                                icon={<EditOutlined />}
+                                                onClick={() =>
+                                                    showEditModal(record)
+                                                }
+                                            ></Button>
+                                            <Button
+                                                danger
+                                                shape="circle"
+                                                icon={<DeleteOutlined />}
+                                                onClick={() =>
+                                                    Modal.confirm({
+                                                        title: "Delete?",
+                                                        icon: (
+                                                            <QuestionCircleOutlined />
+                                                        ),
+                                                        content:
+                                                            "Are you sure you want to delete this data?",
+                                                        okText: "Yes",
+                                                        cancelText: "No",
+                                                        onOk() {
+                                                            handleDelete(
+                                                                record.id
+                                                            );
+                                                        },
+                                                    })
+                                                }
+                                            />
+                                        </Space>
+                                    )}
+                                />
+                            </Table>
                         </div>
                     </div>
                     {/* Modal */}
@@ -154,41 +305,41 @@ export default function Index({ auth }) {
                                 >
                                     <Select
                                         options={[
-                                            { value: "it", label: "IT" },
+                                            { value: "IT", label: "IT" },
                                             {
-                                                value: "finance",
+                                                value: "Finance",
                                                 label: "Finance",
                                             },
                                             {
-                                                value: "healthcare",
+                                                value: "Healthcare",
                                                 label: "Healthcare",
                                             },
                                             {
-                                                value: "education",
+                                                value: "Education",
                                                 label: "Education",
                                             },
                                             {
-                                                value: "manufacturing",
+                                                value: "Manufacturing",
                                                 label: "Manufacturing",
                                             },
                                             {
-                                                value: "retail",
+                                                value: "Retail",
                                                 label: "Retail",
                                             },
                                             {
-                                                value: "construction",
+                                                value: "Construction",
                                                 label: "Construction",
                                             },
                                             {
-                                                value: "hospitality",
+                                                value: "Hospitality",
                                                 label: "Hospitality",
                                             },
                                             {
-                                                value: "transportation",
+                                                value: "Transportation",
                                                 label: "Transportation",
                                             },
                                             {
-                                                value: "energy",
+                                                value: "Energy",
                                                 label: "Energy",
                                             },
                                         ]}
@@ -540,8 +691,8 @@ export default function Index({ auth }) {
                                 >
                                     <Select
                                         options={[
-                                            { value: 0, label: "Active" },
-                                            { value: 1, label: "Inactive" },
+                                            { value: 1, label: "Active" },
+                                            { value: 0, label: "Inactive" },
                                         ]}
                                     />
                                 </Form.Item>
@@ -551,7 +702,7 @@ export default function Index({ auth }) {
                                 <Space size="small">
                                     <Button
                                         type="default"
-                                        // onClick={handleCancel}
+                                        onClick={handleCancel}
                                     >
                                         Cancel
                                     </Button>
