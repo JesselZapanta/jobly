@@ -1,6 +1,6 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
-import { Button, Divider, Form, Input, Modal, notification, Row, Select, Space, Switch, Table } from "antd";
+import { Button, Divider, Form, Input, Modal, notification, Row, Select, Space, Switch, Table, Tag } from "antd";
 
 import {
     MailOutlined,
@@ -124,6 +124,28 @@ export default function Index({ auth }) {
         setErrors({});
     };
 
+    const handleDelete = async (id) => {
+        setLoading(true);
+
+        try{
+            const res = await axios.delete(`/employer/job/delete/${id}`);
+            
+            if(res.data.status === 'deleted'){
+                getData(false);
+                openNotification(
+                    "success",
+                    "bottomRight",
+                    "Deleded!",
+                    "The job has been deleted successfully."
+                );
+            }
+        }catch(err){
+            console.log(err)
+        }finally{
+            setLoading(true);
+        }
+    }
+
     return (
         <AuthenticatedLayout
             header={
@@ -149,7 +171,7 @@ export default function Index({ auth }) {
                         <div className="px-4">
                             <div className="flex gap-2 mb-2">
                                 <Search
-                                    placeholder="Input job title"
+                                    placeholder="Search Jobs"
                                     allowClear
                                     enterButton="Search"
                                     loading={searching}
@@ -188,27 +210,34 @@ export default function Index({ auth }) {
 
                                 <Column
                                     sorter={true}
-                                    title="job_title"
+                                    title="Job Title"
                                     dataIndex="job_title"
                                     key="job_title"
                                 />
                                 <Column
-                                    // sorter={true}
-                                    title="industry"
+                                    sorter={true}
+                                    title="Industry"
                                     dataIndex="industry"
                                     key="industry"
                                 />
                                 <Column
-                                    // sorter={true}
-                                    title="job_type"
+                                    sorter={true}
+                                    title="Job Type"
                                     dataIndex="job_type"
                                     key="job_type"
                                 />
                                 <Column
-                                    // sorter={true}
-                                    title="status"
+                                    sorter={true}
+                                    title="Status"
                                     dataIndex="status"
                                     key="status"
+                                    render={(_, record) =>
+                                        record.status ? (
+                                            <Tag color="green">Yes</Tag>
+                                        ) : (
+                                            <Tag color="red">No</Tag>
+                                        )
+                                    }
                                 />
                                 <Column
                                     title="Action"

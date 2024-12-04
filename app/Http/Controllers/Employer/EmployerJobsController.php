@@ -107,6 +107,10 @@ class EmployerJobsController extends Controller
      */
     public function destroy(string $id)
     {
-        
+        JobList::destroy($id);
+
+        return response()->json([
+            'status' => 'deleted'
+        ], 200);
     }
 }

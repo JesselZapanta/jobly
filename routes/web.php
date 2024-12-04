@@ -46,6 +46,7 @@ Route::middleware(['auth', 'employer'])->group(function(){
     Route::get('/employer/job/getData', [EmployerJobsController::class, 'getData']);
     Route::get('/employer/job/index', [EmployerJobsController::class, 'index'])->name('employer.job.index');
     Route::post('/employer/job/store', [EmployerJobsController::class, 'store']);
+    Route::delete('/employer/job/delete/{id}', [EmployerJobsController::class, 'destroy']);
 });
 
 Route::middleware('auth')->group(function () {
