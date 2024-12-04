@@ -23,7 +23,7 @@ class EmployerStoreProfileRequest extends FormRequest
     {
         return [
             'company_name'=> ['required', 'string', 'max:255'],
-            'contact'=> ['required', 'integer'],
+            'contact'=> ['required'],
             'website'=> ['nullable', 'string', 'max:255'],
             'address'=> ['required', 'string', 'max:255'],
             'industry'=> ['required', 'string'],

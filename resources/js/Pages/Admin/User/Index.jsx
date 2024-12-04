@@ -113,13 +113,13 @@ export default function Index({ auth }) {
 
     const showEditModal = (user) => {
         const avatar = user.avatar
-            ? [
-                  {
-                      uid: "-1",
-                      name: user.avatar,
-                      url: `/storage/avatars/${user.avatar}`,
-                  },
-              ]
+                ? [
+                    {
+                        uid: "-1",
+                        name: user.avatar,
+                        url: `/storage/avatars/${user.avatar}`,
+                    },
+                ]
             : [];
 
         setUser(user);
@@ -420,6 +420,7 @@ export default function Index({ auth }) {
                         }
                         open={isModalOpen}
                         onCancel={handleCancel}
+                        maskClosable={false}
                         footer={null}
                     >
                         <Form
@@ -437,7 +438,6 @@ export default function Index({ auth }) {
                             >
                                 <Input
                                     placeholder="Name"
-                                    // size="large"
                                     prefix={<UserOutlined />}
                                 />
                             </Form.Item>

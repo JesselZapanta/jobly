@@ -18,8 +18,14 @@ class Employer extends Model
         'description',
     ];
 
-    public function employer()
+    public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    
+    public function jobPostings()
+    {
+        return $this->hasMany(JobList::class, 'employer_id');
+    }
+
 }

@@ -63,7 +63,7 @@ export default function Profile() {
                 >
                     <Input
                         placeholder="Company Name"
-                        size="large"
+                        
                         prefix={<UserOutlined />}
                     />
                 </Form.Item>
@@ -76,7 +76,7 @@ export default function Profile() {
                 >
                     <Input
                         placeholder="09xxxxxxxxx"
-                        size="large"
+                        
                         type="number"
                         prefix={<PhoneOutlined />}
                     />
@@ -92,7 +92,7 @@ export default function Profile() {
                         placeholder="example.com"
                         addonBefore="https://"
                         type="website"
-                        size="large"
+                        
                         // prefix={<LockOutlined />}
                     />
                 </Form.Item>
@@ -104,7 +104,7 @@ export default function Profile() {
                     help={errors?.address ? errors?.address[0] : ""}
                 >
                     <Input
-                        size="large"
+                        
                         prefix={<LockOutlined />}
                     />
                 </Form.Item>
@@ -118,7 +118,7 @@ export default function Profile() {
                     <TextArea
                         placeholder="Company Description"
                         allowClear
-                        size="large"
+                        
                         rows={4}
                     />
                 </Form.Item>
@@ -131,7 +131,7 @@ export default function Profile() {
                     className="w-full"
                 >
                     <Select
-                        size="large"
+                        
                         options={[
                             { value: "it", label: "IT" },
                             { value: "finance", label: "FINANCE" },
@@ -155,7 +155,7 @@ export default function Profile() {
                         htmlType="submit"
                         type="primary"
                         icon={<LoginOutlined />}
-                        size="large"
+                        
                         block
                         disabled={loading}
                         loading={loading}

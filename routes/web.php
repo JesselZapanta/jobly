@@ -38,12 +38,13 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::post('/avatar-image-replace/{id}/{filename}', [AdminUserController::class, 'replaceUpload']);
 });
 
-Route::middleware(['auth', 'employer', 'profile-check'])->group(function(){
+Route::middleware(['auth', 'employer'])->group(function(){
     Route::get('/employer/make-profile', [EmployerDashboardController::class, 'profile'])->name('employer.profile');
     Route::post('/employer/make-profile/store', [EmployerDashboardController::class, 'store']);
     Route::get('/employer/dashboard', [EmployerDashboardController::class, 'index'])->name('employer.dashboard');
 
     Route::get('/employer/job/index', [EmployerJobsController::class, 'index'])->name('employer.job.index');
+    Route::post('/employer/job/store', [EmployerJobsController::class, 'store']);
 });
 
 Route::middleware('auth')->group(function () {
