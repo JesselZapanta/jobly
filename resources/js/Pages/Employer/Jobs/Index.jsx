@@ -1,6 +1,19 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
-import { Button, Divider, Form, Input, Modal, notification, Row, Select, Space, Switch, Table, Tag } from "antd";
+import {
+    Button,
+    Divider,
+    Form,
+    Input,
+    Modal,
+    notification,
+    Row,
+    Select,
+    Space,
+    Switch,
+    Table,
+    Tag,
+} from "antd";
 
 import {
     MailOutlined,
@@ -39,21 +52,21 @@ export default function Index({ auth }) {
 
     const getData = async (isSearch = false) => {
         setLoading(true);
-        
-        if(isSearch){
-            setSearching(true)
+
+        if (isSearch) {
+            setSearching(true);
         }
 
         const params = [
-            `page=${page}`, 
+            `page=${page}`,
             `search=${search}`,
             `sortField=${sortField}`,
-            `sortOrder=${sortOrder}`
+            `sortOrder=${sortOrder}`,
         ].join("&");
 
         try {
             const res = await axios.get(`/employer/job/getData?${params}`);
-            
+
             setData(res.data.data);
             setTotal(res.data.total);
         } catch (err) {
@@ -75,6 +88,7 @@ export default function Index({ auth }) {
         getData(false);
     }, [page, sortField, sortOrder]);
 
+
     const [api, contextHolder] = notification.useNotification();
     const openNotification = (type, placement, title, msg) => {
         api[type]({
@@ -84,53 +98,112 @@ export default function Index({ auth }) {
         });
     };
 
+    const [job, setJob] = useState(null);
+    const [form] = Form.useForm();
+    
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [errors, setErrors] = useState({});
     const [processing, setProcessing] = useState(false);
 
-    const [form] = Form.useForm();
 
     const handleSubmit = async (values) => {
         // console.log(values);
         setProcessing(true);
 
-        try {
-            const res = await axios.post(`/employer/job/store`, values);
+        if(job){
+            try{
+                
+            }catch(err){
 
-            if (res.data.status === "created") {
-                handleCancel();
-                openNotification(
-                    "success",
-                    "bottomRight",
-                    "Created!",
-                    "The job has been created successfully."
-                );
+            }finally{
+                setProcessing(false);
             }
-        } catch (err) {
-            // console.log(err.response.data.errors);
-            setErrors(err.response.data.errors);
-        } finally {
-            setProcessing(false);
+        }else{
+            try {
+                const res = await axios.post(`/employer/job/store`, values);
+
+                if (res.data.status === "created") {
+                    handleCancel();
+                    openNotification(
+                        "success",
+                        "bottomRight",
+                        "Created!",
+                        "The job has been created successfully."
+                    );
+                }
+            } catch (err) {
+                // console.log(err.response.data.errors);
+                setErrors(err.response.data.errors);
+            } finally {
+                setProcessing(false);
+            }
         }
     };
 
     const showCreateModal = () => {
         setIsModalOpen(true);
+        setJob(null);
+
+        form.setFieldValue({
+            job_title: "",
+            industry: "",
+            job_type: "",
+            description: "",
+            currency: "",
+            salary_min: "",
+            salary_max: "",
+            qualifications: "",
+            experience: "",
+            languages: "",
+            skills: "",
+            benefits: "",
+            location: "",
+            schedule: "",
+            vacancies: "",
+            status: "",
+        });
+    };
+
+    const showEditModal = (job) => {
+        setJob(job);
+        setIsModalOpen(true);
+
+        console.log(job);
+
+        form.setFieldsValue({
+            job_title: job.job_title,
+            industry: job.industry,
+            job_type: job.job_type,
+            description: job.description,
+            currency: job.currency,
+            salary_min: job.salary_min,
+            salary_max: job.salary_max,
+            qualifications: job.qualifications,
+            experience: job.experience,
+            languages: job.languages.split("|"),
+            skills: job.skills.split("|"),
+            benefits: job.benefits.split("|"),
+            location: job.location,
+            schedule: job.schedule,
+            vacancies: job.vacancies,
+            status: job.status,
+        });
     };
 
     const handleCancel = () => {
         setIsModalOpen(false);
         form.resetFields();
         setErrors({});
+        setJob(null);
     };
 
     const handleDelete = async (id) => {
         setLoading(true);
 
-        try{
+        try {
             const res = await axios.delete(`/employer/job/delete/${id}`);
-            
-            if(res.data.status === 'deleted'){
+
+            if (res.data.status === "deleted") {
                 getData(false);
                 openNotification(
                     "success",
@@ -139,12 +212,12 @@ export default function Index({ auth }) {
                     "The job has been deleted successfully."
                 );
             }
-        }catch(err){
-            console.log(err)
-        }finally{
+        } catch (err) {
+            console.log(err);
+        } finally {
             setLoading(true);
         }
-    }
+    };
 
     return (
         <AuthenticatedLayout
@@ -233,9 +306,9 @@ export default function Index({ auth }) {
                                     key="status"
                                     render={(_, record) =>
                                         record.status ? (
-                                            <Tag color="green">Yes</Tag>
+                                            <Tag color="green">Active</Tag>
                                         ) : (
-                                            <Tag color="red">No</Tag>
+                                            <Tag color="red">Inactive</Tag>
                                         )
                                     }
                                 />

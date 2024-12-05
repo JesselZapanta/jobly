@@ -28,7 +28,7 @@ class EmployerJobsController extends Controller
         if (!$employer) {
             return response()->json(['error' => 'Employer not found'], 404); 
         }
-        
+        //add the filter
         return JobList::where('employer_id', $employer->id)
                         ->where('job_title' ,'like' , "{$request->search}%")
                         ->orderBy($request->sortField, $request->sortOrder)
