@@ -112,12 +112,27 @@ export default function Index({ auth }) {
 
         if(job){
             try{
-                
-            }catch(err){
+                const res = await axios.put(
+                    `/employer/job/update/${job.id}`,
+                    values
+                );
 
+                if(res.data.status === 'updated'){
+                    handleCancel();
+                    openNotification(
+                        "success",
+                        "bottomRight",
+                        "Updated!",
+                        "The job has been updated successfully."
+                    );
+                    getData(false);
+                }
+            }catch(err){
+                setErrors(err.response.data.errors);
             }finally{
                 setProcessing(false);
             }
+
         }else{
             try {
                 const res = await axios.post(`/employer/job/store`, values);
@@ -130,6 +145,7 @@ export default function Index({ auth }) {
                         "Created!",
                         "The job has been created successfully."
                     );
+                    getData(false);
                 }
             } catch (err) {
                 // console.log(err.response.data.errors);
@@ -160,15 +176,13 @@ export default function Index({ auth }) {
             location: "",
             schedule: "",
             vacancies: "",
-            status: "",
+            is_open: "",
         });
     };
 
     const showEditModal = (job) => {
         setJob(job);
         setIsModalOpen(true);
-
-        console.log(job);
 
         form.setFieldsValue({
             job_title: job.job_title,
@@ -186,7 +200,7 @@ export default function Index({ auth }) {
             location: job.location,
             schedule: job.schedule,
             vacancies: job.vacancies,
-            status: job.status,
+            is_open: job.is_open,
         });
     };
 
@@ -204,13 +218,13 @@ export default function Index({ auth }) {
             const res = await axios.delete(`/employer/job/delete/${id}`);
 
             if (res.data.status === "deleted") {
-                getData(false);
                 openNotification(
                     "success",
                     "bottomRight",
                     "Deleded!",
                     "The job has been deleted successfully."
                 );
+                getData(false);
             }
         } catch (err) {
             console.log(err);
@@ -301,14 +315,29 @@ export default function Index({ auth }) {
                                 />
                                 <Column
                                     sorter={true}
+                                    title="Is Open"
+                                    dataIndex="is_open"
+                                    key="is_open"
+                                    render={(_, record) =>
+                                        record.is_open ? (
+                                            <Tag color="green">Open</Tag>
+                                        ) : (
+                                            <Tag color="red">Close</Tag>
+                                        )
+                                    }
+                                />
+                                <Column
+                                    sorter={true}
                                     title="Status"
                                     dataIndex="status"
                                     key="status"
                                     render={(_, record) =>
-                                        record.status ? (
-                                            <Tag color="green">Active</Tag>
+                                        record.status === 0 ? (
+                                            <Tag color="yellow">Pending</Tag>
+                                        ) : record.status === 1 ? (
+                                            <Tag color="green">Approve</Tag>
                                         ) : (
-                                            <Tag color="red">Inactive</Tag>
+                                            <Tag color="red">Rejected</Tag>
                                         )
                                     }
                                 />
@@ -355,7 +384,9 @@ export default function Index({ auth }) {
                     </div>
                     {/* Modal */}
                     <Modal
-                        title="JOB INFORMATION"
+                        title={
+                            job ? "UPDATE JOB INFORMATION" : "JOB INFORMATION"
+                        }
                         width={1000}
                         open={isModalOpen}
                         onCancel={handleCancel}
@@ -464,23 +495,23 @@ export default function Index({ auth }) {
                                     <Select
                                         options={[
                                             {
-                                                value: "full-time",
+                                                value: "Full-time",
                                                 label: "Full-time",
                                             },
                                             {
-                                                value: "part-time",
+                                                value: "Part-time",
                                                 label: "Part-time",
                                             },
                                             {
-                                                value: "contract",
+                                                value: "Contract",
                                                 label: "Contract",
                                             },
                                             {
-                                                value: "internship",
+                                                value: "Internship",
                                                 label: "Internship",
                                             },
                                             {
-                                                value: "freelance",
+                                                value: "Freelance",
                                                 label: "Freelance",
                                             },
                                         ]}
@@ -781,20 +812,22 @@ export default function Index({ auth }) {
                                     />
                                 </Form.Item>
                                 <Form.Item
-                                    label="STATUS"
-                                    name="status"
-                                    validateStatus={
-                                        errors?.status ? "error" : ""
+                                    label="IS OPEN"
+                                    name="is_open"
+                                    validateis_open={
+                                        errors?.is_open ? "error" : ""
                                     }
                                     help={
-                                        errors?.status ? errors?.status[0] : ""
+                                        errors?.is_open
+                                            ? errors?.is_open[0]
+                                            : ""
                                     }
                                     className="w-full"
                                 >
                                     <Select
                                         options={[
-                                            { value: 1, label: "Active" },
-                                            { value: 0, label: "Inactive" },
+                                            { value: 1, label: "Open" },
+                                            { value: 0, label: "Close" },
                                         ]}
                                     />
                                 </Form.Item>
@@ -816,7 +849,7 @@ export default function Index({ auth }) {
                                         disabled={processing}
                                         loading={processing}
                                     >
-                                        Create
+                                        {job ? "Update" : "Create"}
                                     </Button>
                                 </Space>
                             </Row>

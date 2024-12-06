@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminJobsController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Employer\EmployerDashboardController;
@@ -36,6 +37,10 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::post('/avatar-temp-upload', [AdminUserController::class, 'tempUpload']);
     Route::post('/avatar-temp-remove/{filename}', [AdminUserController::class, 'removeUpload']);
     Route::post('/avatar-image-replace/{id}/{filename}', [AdminUserController::class, 'replaceUpload']);
+
+    Route::get('/admin/job/index', [AdminJobsController::class, 'index'])->name('admin.job.index');
+    Route::get('/admin/job/getData', [AdminJobsController::class, 'getData']);
+    Route::post('/admin/job/approved/{id}', [AdminJobsController::class, 'approved']);
 });
 
 Route::middleware(['auth', 'employer'])->group(function(){
@@ -46,6 +51,7 @@ Route::middleware(['auth', 'employer'])->group(function(){
     Route::get('/employer/job/getData', [EmployerJobsController::class, 'getData']);
     Route::get('/employer/job/index', [EmployerJobsController::class, 'index'])->name('employer.job.index');
     Route::post('/employer/job/store', [EmployerJobsController::class, 'store']);
+    Route::put('/employer/job/update/{id}', [EmployerJobsController::class, 'update']);
     Route::delete('/employer/job/delete/{id}', [EmployerJobsController::class, 'destroy']);
 });
 

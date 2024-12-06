@@ -5,6 +5,7 @@ import {
     SettingOutlined,
     UserOutlined,
     LockOutlined,
+    SolutionOutlined,
 } from "@ant-design/icons";
 import { Avatar, Button, Drawer, Menu } from "antd";
 import { Link, usePage } from "@inertiajs/react"; 
@@ -13,6 +14,8 @@ import ApplicationLogo from "@/Components/ApplicationLogo";
 
 export default function AuthenticatedLayout({ auth,header, children }) {
     const currentRoute = route().current();
+
+    // console.log(currentRoute);
 
     const [drawerVisible, setDrawerVisible] = useState(false);
 
@@ -23,7 +26,7 @@ export default function AuthenticatedLayout({ auth,header, children }) {
     const admin = [
         {
             label: <Link href={route("dashboard")}>Dashboard</Link>,
-            key: "dashboard",
+            key: "admin.dashboard",
             icon: <AppstoreOutlined />,
         },
         {
@@ -31,12 +34,17 @@ export default function AuthenticatedLayout({ auth,header, children }) {
             key: "admin.user",
             icon: <UserOutlined />,
         },
+        {
+            label: <Link href={route("admin.job.index")}>Pending Jobs</Link>,
+            key: "admin.job.index",
+            icon: <SolutionOutlined />,
+        },
     ];
 
     const employer = [
         {
             label: <Link href={route("dashboard")}>Dashboard</Link>,
-            key: "dashboard",
+            key: "employer.dashboard",
             icon: <AppstoreOutlined />,
         },
         {

@@ -26,7 +26,8 @@ class JobList extends Model
         'location',
         'schedule',
         'vacancies',
-        'status',
+        'is_open',
+        'status',//0 = pending, 1 = approved,  1 = rejected
     ];
 
     public function employer()

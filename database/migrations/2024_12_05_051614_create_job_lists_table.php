@@ -29,7 +29,8 @@ return new class extends Migration
             $table->string('location');
             $table->string('schedule');
             $table->integer('vacancies');
-            $table->tinyInteger('status');
+            $table->tinyInteger('is_open');
+            $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });
     }

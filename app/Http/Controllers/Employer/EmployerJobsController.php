@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Employer\StoreJobRequest;
+use App\Http\Requests\Employer\UpdateJobRequest;
 use App\Models\JobList;
 use Auth;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class EmployerJobsController extends Controller
      */
     public function getData(Request $request)
     {
-        $employer = Auth::user()->employer; // This can be null if no employer is associated
+        $employer = Auth::user()->employer; 
 
         if (!$employer) {
             return response()->json(['error' => 'Employer not found'], 404); 
@@ -39,7 +40,7 @@ class EmployerJobsController extends Controller
      * For image /file uploads [antd]
      */
 
-    public function tempUpload(Request $req){
+    public function tempUpload(Request $request){
         
     }
 
@@ -59,9 +60,10 @@ class EmployerJobsController extends Controller
     {
         $data = $request->validated();
 
-        $employer = Auth::user()->employer; // This can be null if no employer is associated
+        $employer = Auth::user()->employer;
 
         if (!$employer) {
+            // redirect to profile page
             return response()->json(['error' => 'Employer not found'], 404); 
         }
 
@@ -97,9 +99,20 @@ class EmployerJobsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateJobRequest $request, string $id)
     {   
-        
+        $data = $request->validated();
+        $job = JobList::findOrFail($id);
+
+        $data['languages'] = implode('|',  $data['languages'] );
+        $data['skills'] = implode('|', $data['skills']);
+        $data['benefits'] = implode('|', $data['benefits']);
+
+        $job->update($data);
+
+        return response()->json([
+            'status' => 'updated'
+        ], 200);
     }
 
     /**
